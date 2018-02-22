@@ -2,6 +2,7 @@
 ### Construct visual features for training/testing images ###
 #############################################################
 
+### Generic code for any feature, will call specific functions corresponding to the "method" chosen:
 feature <- function(img_dir, indexes="all", method="row_mean", export=T){
   
   ### Construct process features for training/testing images
@@ -45,6 +46,8 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
   return(features)
 }
 
+
+### Functions for each way to construct features:
 row_mean_feature <- function(images){
   # This method turns images into grayscale, then computes mean intensity per row
   # To do so, we resize all images to 300 rows (and proportional number of columns)

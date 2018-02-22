@@ -2,7 +2,7 @@
 ### Cross Validation ###
 ########################
 
-cv.function <- function(X.train, y.train, d, model, K) {
+cv.function <- function(X.train, y.train, par, model, K) {
   
   n        <- length(y.train)
   n.fold   <- floor(n/K)
@@ -15,7 +15,6 @@ cv.function <- function(X.train, y.train, d, model, K) {
     test.data   <- X.train[s == i,]
     test.label  <- y.train[s == i]
     
-    par  <- list(depth = d)
     fit  <- train(train.data, train.label, model, par)
     pred <- test(fit, test.data)  
     cv.error[i] <- mean(pred != test.label)  

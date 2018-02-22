@@ -20,6 +20,14 @@ if(!require("gbm")){
   install.packages("gbm")
 }
 
+if(!require("knn")){
+  install.packages("knn")
+}
+
+if(!require("xgboost")){
+  install.packages("xgboost")
+}
+
 library("EBImage")
 library("gbm")
 ```
@@ -59,11 +67,33 @@ run.test          <- FALSE # run evaluation on an independent test set
 run.feature.test  <- FALSE # process features for test set
 ```
 
-Using cross-validation or independent test set evaluation, we compare the performance of different classifiers. In this example, we use GBM with different `depth`. In the following code chunk, we list, in a vector, setups (in this case, `depth`) corresponding to model parameters that we will compare. In your project, you will likely be comparing different classifiers than the one considered here and therefore will need to expand this code. You could, for example, assign them numerical IDs and labels specific to your project. 
+Using cross-validation or independent test set evaluation, we compare the performance of different classifiers. 
+
+A model can take one (for gbm for example) or more values. Construct a list with all the values that you want to test, each entry of the list should be one test.
+
+For example, if you have two parameters:
+- my_param_a: you want to test it on 1,2,3
+- my_param_b: you want to test it on 0.1,0.2
+
+Then your list of model_values should be the cross product of those if you want to try any combination of the two, and each element of the list should contain the name of the parameter and its value:
+
+```
+list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
+     list(my_param_a=2, my_param_b=0.1), list(my_param_a=2, my_param_b=0.2),
+     list(my_param_a=3, my_param_b=0.1), list(my_param_a=3, my_param_b=0.2))
+```   
 
 ```{r model_setup}
-model_values <- seq(3, 11, 2)
-model_labels <- paste("GBM with depth =", model_values)
+# Model values for GBM:
+# model_values <- seq(3, 11, 2)
+# model_labels <- paste("GBM with depth =", model_values)
+
+# Model values fir xgboost (only one parameter):
+model_values <- list()
+for(i in 1:5){
+  model_values[[i]] = list(max_depth = i)
+}
+# model_labels <- paste("XGboost with max_depth =", model_values)
 ```
 
 
@@ -90,7 +120,7 @@ source("../lib/feature.R")
 tm_feature_train <- NA
 
 if(run.feature.train){
- tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes, # will only use the first 10 samples
+ tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes,
                                                       export = FALSE))
 }
 
@@ -136,14 +166,15 @@ if (train_indexes != "all"){
   label_train <- label_train[train_indexes]
 }
 
-model = "gbm" # choose which model to train
+# model = "gbm" # choose which model to train
+model = "xgboost"
 
 # run cross validation:
 if(run.cv){
   err_cv <- array(dim = c(length(model_values), 2))
   for(k in 1:length(model_values)){
     cat("k=", k, "\n")
-    err_cv[k,] <- cv.function(dat_train, label_train, model_values[k], model, K)
+    err_cv[k,] <- cv.function(dat_train, label_train, model_values[[k]], model, K)
   }
   save(err_cv, file = paste0("../output/err_cv_", model, ".RData"))
 }
