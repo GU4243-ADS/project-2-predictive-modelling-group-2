@@ -2,12 +2,8 @@
 ### Train a classification model with training images ###
 #########################################################
 
-### Author: Yuting Ma
-### Project 3
-### ADS Spring 2016
 
-
-train <- function(dat_train, label_train, par = NULL){
+train <- function(dat_train, label_train, model, par = NULL){
   
   ### Train a Gradient Boosting Model (GBM) using processed features from training images
   
@@ -16,6 +12,36 @@ train <- function(dat_train, label_train, par = NULL){
   ###  -  class labels for training images
   ### Output: training model specification
   
+  if(model == "gbm"){
+    return(train_gbm(dat_train, label_train, par))
+  } else if(model == "xgboost"){
+    return(train_xgboost(dat_train, label_train, par))
+  }
+}
+
+train_xgboost <- function(dat_train, label_train, par){
+  library("xgboost")
+  
+  ### Train with xgboost
+  if(is.null(par)){
+    max_depth <- 2
+  } else {
+    max_depth <- par$max_depth
+  }
+  
+  fit_boosted_tree <- xgboost(data = dat_train, 
+                      label = label_train,
+                      max.depth = max_depth, 
+                      eta = 0, 
+                      nthread = 2, 
+                      nround = 2, 
+                      objective = "binary:logistic",
+                      verbose = 0)
+  
+  return(list(fit = fit_boosted_tree))
+}
+
+train_gbm <- function(dat_train, label_train, par){
   ### load libraries
   library("gbm")
   
@@ -32,6 +58,5 @@ train <- function(dat_train, label_train, par = NULL){
                      bag.fraction = 0.5,
                      verbose = FALSE)
   best_iter <- gbm.perf(fit_gbm, method = "OOB", plot.it = FALSE)
-
   return(list(fit = fit_gbm, iter = best_iter))
 }
