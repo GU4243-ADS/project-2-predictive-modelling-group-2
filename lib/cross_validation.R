@@ -2,12 +2,7 @@
 ### Cross Validation ###
 ########################
 
-### Author: Yuting Ma
-### Project 3
-### ADS Spring 2016
-
-
-cv.function <- function(X.train, y.train, d, K) {
+cv.function <- function(X.train, y.train, d, model, K) {
   
   n        <- length(y.train)
   n.fold   <- floor(n/K)
@@ -21,10 +16,10 @@ cv.function <- function(X.train, y.train, d, K) {
     test.label  <- y.train[s == i]
     
     par  <- list(depth = d)
-    fit  <- train(train.data, train.label, par)
+    fit  <- train(train.data, train.label, model, par)
     pred <- test(fit, test.data)  
     cv.error[i] <- mean(pred != test.label)  
     
-  }			
+  }         
   return(c(mean(cv.error), sd(cv.error)))
 }
