@@ -11,25 +11,20 @@ In your final Project 2 repo, there should be an R markdown file called `main.Rm
 This file is meant to be a template for evaluating models used for image analysis (and could be generalized for any predictive modeling). You should update it according to your models/codes but your final document should have precisely the same structure. 
 
 ```{r, warning = FALSE}
+
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2")
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used,
+intersect(installed.packages()[,1],
+packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+install.packages(packages.needed, dependencies = TRUE)
+}
+
 if(!require("EBImage")){
   source("https://bioconductor.org/biocLite.R")
   biocLite("EBImage")
-}
-
-if(!require("gbm")){
-  install.packages("gbm")
-}
-
-if(!require("knn")){
-  install.packages("knn")
-}
-
-if(!require("xgboost")){
-  install.packages("xgboost")
-}
-
-if(!require("randomForest")){
-  install.packages("randomForest")
 }
 ```
 
@@ -89,18 +84,18 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 # model_values <- seq(3, 11, 2)
 # model_labels <- paste("GBM with depth =", model_values)
 
-# Model values fir xgboost (only one parameter):
-model_values <- list()
-for(i in 1:5){
-  model_values[[i]] = list(max_depth = i)
-}
+# Model values for xgboost (only one parameter):
+# model_values <- list()
+# for(i in 1:5){
+#   model_values[[i]] = list(max_depth = i)
+# }
 
-#Model values for randomForest (two parameters: ntree and mtry)
-model_values_rf <- list()
+# Model values for randomForest (two parameters: ntree and mtry)
+model_values <- list()
 k = 1
 for(i in seq(100, 500, 100)){
   for(j in seq(50, 100, 10)){
-    model_values_rf[[k]] = list(ntree = i, mtry = j)
+    model_values[[k]] = list(ntree = i, mtry = j)
     k = k + 1
   }
 }
@@ -177,10 +172,8 @@ if (train_indexes != "all"){
   label_train <- label_train[train_indexes]
 }
 
-# model = "gbm" # choose which model to train
-model = "xgboost"
+model = "randomForest"
 
-# run cross validation:
 if(run.cv){
   err_cv <- array(dim = c(length(model_values), 2))
   for(k in 1:length(model_values)){
@@ -190,32 +183,52 @@ if(run.cv){
   save(err_cv, file = paste0("../output/err_cv_", model, ".RData"))
 }
 
-# randomForest model 
-model = "randomForest"
-
-if(run.cv){
-  err_cv_rf <- array(dim = c(length(model_values_rf), 2))
-  for(k in 1:length(model_values_rf)){
-    cat("k=", k, "\n")
-    err_cv_rf[k,] <- cv.function(dat_train, label_train, model_values_rf[[k]], model, K)
-  }
-  save(err_cv_rf, file = paste0("../output/err_cv_", model, ".RData"))
-}
-
 ```
 
 * Visualize the cross-validation results. 
 
+
+If the model we use is only tuned with 1 parameter, we visualize the results by simply plotting the cv error, with the parameter we're tuning on the x axis.
+If the model uses 2 parameters, we visualize the results with a heatmap.
 ```{r cv_vis}
 if(run.cv){
   load("../output/err_cv.RData")
   #pdf("../fig/cv_results.pdf", width=7, height=5)
-  plot(model_values, err_cv[,1], xlab = "Interaction Depth", ylab = "CV Error",
-       main = "Cross Validation Error", type = "n", ylim = c(0, 0.25))
-  points(model_values, err_cv[,1], col = "blue", pch=16)
-  lines(model_values, err_cv[,1], col = "blue")
-  arrows(model_values, err_cv[,1] - err_cv[,2], model_values, err_cv[,1] + err_cv[,2],
-        length = 0.1, angle = 90, code = 3)
+  if (length(model_values[[1]]) == 1){
+    # plot, like in the starter code
+    plot(as.vector(unlist(model_values)), err_cv[,1], xlab = "Interaction Depth", ylab = "CV Error",
+         main = "Cross Validation Error", type = "n", ylim = c(0, 0.25))
+    points(as.vector(unlist(model_values)), err_cv[,1], col = "blue", pch=16)
+    lines(as.vector(unlist(model_values)), err_cv[,1], col = "blue")
+    arrows(as.vector(unlist(model_values)), err_cv[,1] - err_cv[,2], as.vector(unlist(model_values)), err_cv[,1] + err_cv[,2],
+           length = 0.1, angle = 90, code = 3)
+  
+  } else if(length(model_values[[1]]) == 2){
+    # do a heatmap
+    par_1_name = names(model_values[[1]])[1]
+    par_2_name = names(model_values[[1]])[2]
+    
+    par_1 = sapply(model_values, function(x) as.numeric(x[1]))
+    par_2 = sapply(model_values, function(x) as.numeric(x[2]))
+    # construct a dataframe containing for each row the value of 1st param, the value of 2nd param, and the cv results (mean error and std of error)
+    err_2 = data.frame(par_1, par_2, mean_err_cv = err_cv[,1], std_err_cv = err_cv[,2])
+
+    # plot those results in a 2d heatmap
+    ggplot(data = err[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
+      geom_tile() +
+      geom_text(aes(par_1, par_2, label = round(mean_err_cv, digits=2)), color = "black", size = 4) +
+      # scale_fill_gradient2(low = "green", high = "red", mid = "white", 
+      #   midpoint = 0.5, limit = c(0, 1), space = "Lab") +
+      labs(x=par_1_name, y=par_2_name) +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.background = element_blank()
+      )
+    
+  } else{
+    # TODO: handle visualization for 3 parameters or mroe
+  }
+  
   #dev.off()
 }
 ```
@@ -223,23 +236,12 @@ if(run.cv){
 * Choose the "best" parameter value
 
 ```{r best_model}
-#xgboost
-
 model_best <- model_values[1]
 if(run.cv){
   model_best <- model_values[which.min(err_cv[, 1])]
 }
 
-par_best <- list(depth = model_best)
-
-#randomForest
-
-model_best_rf <- model_values_rf[1]
-if(run.cv){
-  model_best_rf <- model_values_rf[which.min(err_cv_rf[, 1])]
-}
-
-par_best_rf <- list(ntree = model_best_rf, mtry = model_best_rf)
+par_best <- list(ntree = model_best$ntree, mtry = model_best$mtry)
 
 ```
 
