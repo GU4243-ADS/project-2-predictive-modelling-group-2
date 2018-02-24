@@ -16,8 +16,31 @@ train <- function(dat_train, label_train, model, par = NULL){
     return(train_gbm(dat_train, label_train, par))
   } else if(model == "xgboost"){
     return(train_xgboost(dat_train, label_train, par))
+  } else if (model == "randomForest"){
+  return(train_randomForest(dat_train, label_train, par))
   }
 }
+
+train_randomForest <- function(dat_train, label_train, par){
+    library("randomForest")
+    
+    ### Train with randomForest
+    if(is.null(par)){
+        ntree <- 500
+        mtry <- 50
+    } else {
+        ntree <- par$ntree
+        mtry <- par$mtry
+}
+ 
+ fit_randomForest <- randomForest(x = dat_train,
+ y = label_train,
+ ntree = ntree,
+ mtry = mtry)
+ 
+ return(list(fit = fit_randomForest))
+}
+
 
 train_xgboost <- function(dat_train, label_train, par){
   library("xgboost")
@@ -41,6 +64,7 @@ train_xgboost <- function(dat_train, label_train, par){
   return(list(fit = fit_boosted_tree))
 }
 
+
 train_gbm <- function(dat_train, label_train, par){
   ### load libraries
   library("gbm")
@@ -60,3 +84,7 @@ train_gbm <- function(dat_train, label_train, par){
   best_iter <- gbm.perf(fit_gbm, method = "OOB", plot.it = FALSE)
   return(list(fit = fit_gbm, iter = best_iter))
 }
+
+
+
+
