@@ -37,6 +37,8 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
   # Call features generation function:
   if(method == "row_mean"){
     features <- row_mean_feature(images)
+  } else if(method == "rgb_feature"){
+    features <- rgb_feature(images)
   }
   
   ### output constructed features
@@ -63,9 +65,36 @@ row_mean_feature <- function(images){
 }
 
 rgb_feature <- function(images){
-  # TODO
-  return()
+  ### load libraries
+  library("EBImage")
+  # library(grDevices)
+  ### Define the b=number of R, G and B
+  nR <- 10
+  nG <- 12
+  nB <- 12 
+  rBin <- seq(0, 1, length.out=nR)
+  gBin <- seq(0, 1, length.out=nG)
+  bBin <- seq(0, 1, length.out=nB)
+  mat=array()
+  freq_rgb=array()
+  dat <- matrix(NA, length(images), nR*nG*nB)
+  
+  ########extract RGB features############
+  for (i in 1:length(images)){
+    img <- images[[i]]
+    img_as_rgb <-array(c(img,img,img),dim = c(nrow(img),ncol(img),3))
+    freq_rgb <- as.data.frame(table(factor(findInterval(img_as_rgb[,,1], rBin), levels=1:nR), 
+                                    factor(findInterval(img_as_rgb[,,2], gBin), levels=1:nG),
+                                    factor(findInterval(img_as_rgb[,,3], bBin), levels=1:nB)))
+    dat[i,] <- as.numeric(freq_rgb$Freq)/(ncol(img)*nrow(img)) # normalization
+    
+    mat_rgb <-img_as_rgb
+    dim(mat_rgb) <- c(nrow(img_as_rgb)*ncol(img_as_rgb), 3)
+  }
+  
+  return(dat)
 }
+
 
 hog_feature <- function(images){
   # TODO
