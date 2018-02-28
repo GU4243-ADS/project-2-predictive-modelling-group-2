@@ -32,8 +32,15 @@ if(!require("e1071")){
   install.packages("e1071")
 }
 
+if(!require("ggplot2")){
+  install.packages("ggplot2")
+}
+
+install.packages("pillar")
+
 library("EBImage")
 library("gbm")
+library("ggplot2")
 ```
 
 ### Step 0: Specify directories.
@@ -232,6 +239,7 @@ If the model we use is only tuned with 1 parameter, we visualize the results by 
 If the model uses 2 parameters, we visualize the results with a heatmap.
 ```{r cv_vis}
 library(ggplot2)
+
 if(run.cv){
   # load("../output/err_cv.RData")
   # pdf("../fig/cv_results.pdf", width=7, height=5)
@@ -255,7 +263,7 @@ if(run.cv){
     err = data.frame(par_1, par_2, mean_err_cv = err_cv[,1], std_err_cv = err_cv[,2])
 
     # plot those results in a 2d heatmap
-    ggplot(data = err[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
+    ggplot(data = err_2[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
       geom_tile() +
       geom_text(aes(par_1, par_2, label = round(mean_err_cv, digits=2)), color = "black", size = 4) +
       # scale_fill_gradient2(low = "green", high = "red", mid = "white", 

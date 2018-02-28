@@ -90,6 +90,7 @@ train_gbm <- function(dat_train, label_train, par){
   return(list(fit = fit_gbm, iter = best_iter))
 }
 
+
 train_svm_rbf = function(dat_train, label_train, par){
   
   ###  dat_train: processed features from images also contains label
@@ -105,7 +106,7 @@ train_svm_rbf = function(dat_train, label_train, par){
     Gamma <- par$Gamma
   }
   
-  fit_svm_rbf <- svm(label_train, data = dat_train, 
+  fit_svm_rbf <- svm(x = dat_train, y = label_train,  
                      kernel = "radial", scale = FALSE,
                      Cost = Cost, Gamma = Gamma)
   return(list(fit = fit_svm_rbf))
@@ -124,7 +125,7 @@ train_svm_lin = function(dat_train, label_train, par){
     Cost <- par$cost
   }
   
-  fit_svm_rbf <- svm(label_train, data = dat_train,
+  fit_svm_rbf <- svm(data = dat_train,label = label_train,
                      method = "svmLinear", scale = FALSE,
                      Cost = Cost)
   return(list(fit = fit_svm_lin))
