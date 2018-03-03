@@ -86,17 +86,17 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 # model_labels <- paste("GBM with depth =", model_values)
 
 # Model values for xgboost (only one parameter):
-model_values <- list()
-for(i in 1:5){
-  model_values[[i]] = list(max_depth = i)
-}
+# model_values <- list()
+# for(i in 1:5){
+#   model_values[[i]] = list(max_depth = i)
+# }
 
 # Model values for randomForest (two parameters: ntree and mtry)
 model_values <- list()
 k = 1
 for(i in seq(300, 500, 100)){
   for(j in seq(50, 100, 10)){
-    model_values[[k]] = list(max_depth = i, ntrees = j)
+    model_values[[k]] = list(ntree = i, mtry = j)
     k = k + 1
   }
 }
@@ -142,91 +142,6 @@ if(run.feature.test){
 #save(dat_test, file = "../output/feature_test.RData")
 ```
 
-```{r}
-dim(dat_train)
-dim(dat_train[0,])
-
-ggplot2
-barplot(dat_train[1,])
-
-library(ggplot2)
-
-ggplot(dat_train[1,])
-
-image_1 <- data.frame(bin_nb=seq.int(dim(dat_train)[2]), freq=dat_train[1,])
-
-ggplot(image_1, aes(image_1$bin_nb, image_1$freq)) +
-  geom_bar(stat="identity")
-
-
-g <- ggplot(mpg, aes(class))
-# Number of cars in each class:
-g + geom_bar()
-
-install.packages("imhist")
-library(imhist)
-
-img <- readImage(paste0("../data/pets/train/",  "pet", 1, ".jpg"))
-dim(img)
-hist(img[,,1])
-hist(img[,,2])
-hist(img[,,3])
-
-
-nR <- 10
-nG <- 12
-nB <- 12 
-rBin <- seq(0, 1, length.out=nR)
-gBin <- seq(0, 1, length.out=nG)
-bBin <- seq(0, 1, length.out=nB)
-  
-img_as_rgb <- array(c(img,img,img),dim = c(nrow(img),ncol(img),3))
-
-freqs_1 <- as.data.frame(table(
-  factor(findInterval(img_as_rgb[,,1], rBin), levels=1:nR), 
-  factor(findInterval(img_as_rgb[,,2], gBin), levels=1:nG),
-  factor(findInterval(img_as_rgb[,,3], bBin), levels=1:nB)
-))
-
-freqs_1[,"Var1"]
-
-
-# Visualizing the RGB feature: we create an array of size 4*4*total nb of bins
-# each subarray of size 4*4 will contain the color of a corresponding bin
-colors = matrix(NA, 1, nR*nG*nB)
-k = 0
-for (iR in 1:length(rBin)){
-  for (iG in 1:length(gBin)){
-    for (iB in 1:length(bBin)){
-      colors[1, k] = rBin[iR] * gBin[iG] * bBin[iB]
-      k = k + 1
-    }
-  }
-}
-
-# array(c(img,img,img),dim = c(nrow(img),ncol(img),3))
-
-array(NA, dim=(4, 1440, 3))
-
-m = matrix(runif(100),10,10)
-par(mar=c(0, 0, 0, 0))
-image(m, useRaster=TRUE, axes=FALSE)
-
-frise <- data.matrix(freqs_1[c("Var1", "Var2", "Var3")])
-dim(frise)
-
-frise
-image(data.matrix(freqs_1[c("Var1", "Var2", "Var3")]))
-
-
-frise2 = matrix(NA, dim=c(4, 1440, 3))
-dim(frise2)
-plot(Image(frise, dim=c(1,1440)))
-img_zip <- Image(M, dim=c(n_r, n_c))
-plot(img_zip)
-
-```
-
 ### Step 4: Train a classification model with training images (and the visual features constructed above)
 
 Call the train model and test model from library. 
@@ -249,11 +164,6 @@ source("../lib/test.R")
 #### Model selection with cross-validation
 
 * Do model selection.  Here we choose between model parameters, in this case the interaction depth for GBM. 
-
-```{r}
-
-```
-
 
 ```{r runcv, message=FALSE, warning=FALSE}
 source("../lib/cross_validation.R")
