@@ -20,14 +20,16 @@ hog_feature_train_dir  <- "../output/"
 
 label_train <- read.table(paste(experiment_dir, "train_label.txt", sep = ""), header = F)
 label_train <- as.numeric(unlist(label_train) == "cat")
+n_files <- length(list.files(img_train_dir))
 ```
 
-Created sample file of 10 images to test HOG code 
+Creating a balanced dataset using SMOTE
 
 ```{r}
-sample_dir <- paste(experiment_dir, "sample/", sep = "")
-sample_files <- length(list.files(sample_dir))
+library(DMwR)
+
 ```
+
 
 Cropping and resizing images
 
@@ -36,8 +38,8 @@ train_data <- list()
 cropped <- list()
 resized <- list()
 
-for (i in 1:sample_files){
-    path <- paste(sample_dir,"pet", i, ".jpg", sep = "")
+for (i in 1:n_files){
+    path <- paste(img_train_dir,"pet", i, ".jpg", sep = "")
     train_data[[i]] <- readImage(path)
     cropped[[i]] <- if(ncol(train_data[[i]]) > nrow(train_data[[i]])){
       cropImage(train_data[[i]], nrow(train_data[[i]]) - 1, nrow(train_data[[i]]) - 1,
@@ -53,8 +55,7 @@ for (i in 1:sample_files){
 HOG extraction 
 
 ```{r}
-
-feature.hog <- function(sample_dir, data_name, set_name, export = T, cell, orientation){
+feature.hog <- function(img_train_dir, data_name, set_name, export = T, cell, orientation){
 
 # Read, crop, and resize images   
     
@@ -76,10 +77,10 @@ for (i in 1:sample_files){
 }
   
 # extract hog feature (cell and orientation numbers may be changed with tuning)
-hog <- matrix(NA, nrow = sample_files, ncol = 192)
-for (i in 1:sample_files){
+hog <- matrix(NA, nrow = n_files, ncol = 192)
+for (i in 1:n_files){
     hog <- matrix(HOG(resized[[i]], cells = 8, orientations = 8), 
-                  nrow = sample_files, ncol = 192)
+                  nrow = n_files, ncol = 192)
   }
 
 # output constructed features (NOT SURE WHAT THIS IS DOING)
@@ -103,14 +104,18 @@ write.csv(hog, file = "../output/hog.csv")
 pets_hog <- read.csv("../output/hog.csv", row.names = 1)
 
 label_train_sample <- read.table(paste(experiment_dir, 
-                                       "sample_train_label.txt", sep = ""), header = F)
+                                       "train_label.txt", sep = ""), header = F)
 label_train_sample <- as.numeric(unlist(label_train_sample) == "cat")
 
 pets_hog$pet <- label_train_sample
 write.csv(pets_hog, file = "../output/hog_withlabel.csv")
 hog_train_data <- read.csv("../output/hog_withlabel.csv", row.names = 1)
-hog_train_data[, order(names(hog_train_data))]
-hog_train_data$pet <- as.factor(hog_train_data$pet)
+hog_train_data$pet <- factor(hog_train_data$pet, levels = c(0:1), 
+                             labels = c("dog", "cat"))
+hog_train_data <- hog_train_data[, sort(names(hog_train_data))]
+
+hog_train_data2 <- hog_train_data[1:1800, ]
+hog_test_data <- hog_train_data[1801:2000, ]
 
 ```
 
@@ -118,10 +123,12 @@ Test on randomForest
 
 ```{r train.R}
 library(randomForest)
-rf_fit <- randomForest(hog_train_data[, -1], hog_train_data[, 1], 
-                          ntree = 500, mtry = 10)
-yhat_rf <- predict(rf_fit, TESTDATA, type = "class")
-
+rf_fit <- randomForest(hog_train_data2[, -1], hog_train_data2[, 1], 
+                          ntree = 500, mtry = 50)
+yhat_rf <- predict(rf_fit, hog_test_data, type = "class")
+table_rf <- table(hog_test_data[, 1], yhat_rf)
+table_rf
+sum(diag(table_rf)) / sum(table_rf) 
 ```
 
 
