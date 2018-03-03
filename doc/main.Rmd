@@ -12,8 +12,8 @@ This file is meant to be a template for evaluating models used for image analysi
 
 
 ```{r, warning = FALSE}
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices", "e1071", "pillar")
 
-packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used,
 intersect(installed.packages()[,1],
@@ -27,16 +27,6 @@ if(!require("EBImage")){
   source("https://bioconductor.org/biocLite.R")
   biocLite("EBImage")
 }
-
-if(!require("e1071")){
-  install.packages("e1071")
-}
-
-if(!require("ggplot2")){
-  install.packages("ggplot2")
-}
-
-install.packages("pillar")
 
 library("EBImage")
 library("gbm")
@@ -131,7 +121,7 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 
 
 # Model values for svm linear
-model_values <- c(100000)
+model_values <- c(0.001, 0.01, 0.1, 1, 10, 100, 1000)
 model_labels <- paste("SVM with cost =", model_values)
 ```
 
@@ -141,7 +131,6 @@ model_labels <- paste("SVM with cost =", model_values)
 ```{r train_label}
 label_train <- read.table(paste(experiment_dir, "train_label.txt", sep = ""), header = F)
 label_train <- as.numeric(unlist(label_train) == "cat")
-
 ```
 
 ### Step 3: Construct visual features
@@ -149,7 +138,7 @@ label_train <- as.numeric(unlist(label_train) == "cat")
 When debugging, do not pass all the training data to the 'feature' function, otherwise it'll take a while. Instead pass a subset, via the argument "indexes" of the function. It should be a sequence of integers corresponding to the training samples you want to use.
 
 ```{r}
-# train_indexes <- seq(1, 100) # set to "all" if you want to train on full dataset
+# train_indexes <- seq(1,100) # set to "all" if you want to train on full dataset
 train_indexes <- "all"
 ```
 
