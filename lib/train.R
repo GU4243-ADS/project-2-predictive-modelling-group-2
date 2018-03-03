@@ -21,7 +21,7 @@ train <- function(dat_train, label_train, model, par = NULL){
   } else if(model == "svm_rbf"){
     return(train_svm_rbf(dat_train, label_train, par))
   } else if(model == "svm_lin"){
-    return(train_svm_lin(dat-train, label_train, par))
+    return(train_svm_lin(dat_train, label_train, par))
   }
 }
 
@@ -112,6 +112,7 @@ train_svm_rbf = function(dat_train, label_train, par){
   return(list(fit = fit_svm_rbf))
 }
   
+
 train_svm_lin = function(dat_train, label_train, par){
   
   ###  dat_train: processed features from images also contains label
@@ -122,10 +123,10 @@ train_svm_lin = function(dat_train, label_train, par){
     Cost <- 1
   }
   else{
-    Cost <- par$cost
+    Cost <- par
   }
   
-  fit_svm_rbf <- svm(data = dat_train,label = label_train,
+  fit_svm_lin <- svm(x = dat_train, y = label_train,
                      method = "svmLinear", scale = FALSE,
                      Cost = Cost)
   return(list(fit = fit_svm_lin))
