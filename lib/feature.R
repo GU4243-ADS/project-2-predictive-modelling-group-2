@@ -69,9 +69,12 @@ rgb_feature <- function(images){
   library("EBImage")
   # library(grDevices)
   ### Define the b=number of R, G and B
-  nR <- 10
+  nR <- 12
   nG <- 12
   nB <- 12 
+  # we split the intensity range [0,1] into 12 bins, for each channel
+  # therefore we get 1728 bins that are a partition of all possible colors
+  # (since each color is a combination of red intensity, blue intensity, green intensity)
   rBin <- seq(0, 1, length.out=nR)
   gBin <- seq(0, 1, length.out=nG)
   bBin <- seq(0, 1, length.out=nB)
