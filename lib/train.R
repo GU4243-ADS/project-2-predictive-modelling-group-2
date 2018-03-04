@@ -57,8 +57,9 @@ train_xgboost <- function(dat_train, label_train, par){
                       max.depth = max_depth, 
                       eta = 0, 
                       nthread = 2, 
-                      nround = 2, 
+                      nrounds = 100, 
                       objective = "binary:logistic",
+                      gamma = 0.1,
                       verbose = 0)
   
   return(list(fit = fit_boosted_tree))
@@ -84,7 +85,3 @@ train_gbm <- function(dat_train, label_train, par){
   best_iter <- gbm.perf(fit_gbm, method = "OOB", plot.it = FALSE)
   return(list(fit = fit_gbm, iter = best_iter))
 }
-
-
-
-

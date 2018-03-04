@@ -86,20 +86,23 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 # model_labels <- paste("GBM with depth =", model_values)
 
 # Model values for xgboost (only one parameter):
-# model_values <- list()
-# for(i in 1:5){
-#   model_values[[i]] = list(max_depth = i)
-# }
-
-# Model values for randomForest (two parameters: ntree and mtry)
 model_values <- list()
 k = 1
-for(i in seq(300, 500, 100)){
-  for(j in seq(50, 100, 10)){
-    model_values[[k]] = list(ntree = i, mtry = j)
-    k = k + 1
-  }
+for(i in list(1, 2, 3, 4, 5, 10)){
+  model_values[[k]] = list(depth = i)
+  k = k + 1
 }
+
+# Model values for randomForest (two parameters: ntree and mtry)
+# model_values <- list()
+# k = 1
+# for(i in seq(300, 500, 100)){
+#   for(j in seq(50, 100, 10)){
+#     model_values[[k]] = list(ntree = i, mtry = j)
+#     k = k + 1
+#   }
+# }
+
 # model_labels <- paste("XGboost with max_depth =", model_values)
 ```
 
@@ -142,7 +145,21 @@ if(run.feature.test){
 #save(dat_test, file = "../output/feature_test.RData")
 ```
 
-### Step 4: Train a classification model with training images (and the visual features constructed above)
+#### Dealing with imbalanced data:
+
+There are more dogs than cats in our training data which is not representative of the true distribution, therefore our model will be more biased toward dogs. As a basic approach, we just remove images of dogs from the dataset to make sure to have an equal number of pictures of dogs and cats. This is suboptimal because we are removing a lot of training samples.
+
+There are 652 images of cats and 1358 imgaes of dogs so we'll drop 706 images of dogs. Again, this is not optimal at all.
+```{r}
+dogs_indexes <- which(label_train == 0)
+cats_indexes <- which(label_train == 1)
+
+dat_train <- dat_train[c(dogs_indexes[1:652], cats_indexes),]
+label_train <- label_train[c(dogs_indexes[1:652], cats_indexes)]
+```
+
+
+###Step 4: Train a classification model with training images (and the visual features constructed above)
 
 Call the train model and test model from library. 
 
@@ -174,7 +191,8 @@ if (train_indexes != "all"){
   label_train <- label_train[train_indexes]
 }
 
-model = "randomForest"
+# model = "randomForest"
+model = "gbm"
 
 if(run.cv){
   err_cv <- array(dim = c(length(model_values), 2))
@@ -194,6 +212,7 @@ if(run.cv){
 If the model we use is only tuned with 1 parameter, we visualize the results by simply plotting the cv error, with the parameter we're tuning on the x axis.
 If the model uses 2 parameters, we visualize the results with a heatmap.
 ```{r cv_vis}
+library(ggplot2)
 if(run.cv){
   # load("../output/err_cv.RData")
   # pdf("../fig/cv_results.pdf", width=7, height=5)
@@ -245,7 +264,6 @@ if(run.cv){
 }
 
 par_best <- list(ntree = model_best$ntree, mtry = model_best$mtry)
-
 ```
 
 * Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
@@ -276,7 +294,7 @@ Feed the final training model with the test data.  (Note that for this to truly 
 Prediction performance matters, so does the running times for constructing features and for training the model, especially when the computation resource is limited. 
 
 ```{r running_time}
-# cat("Time for constructing training features=", tm_feature_train[1], "s \n")
+cat("Time for constructing training features=", tm_feature_train[1], "s \n")
 # cat("Time for constructing testing features=", tm_feature_test[1], "s \n")
 # cat("Time for training model=", tm_train[1], "s \n")
 # cat("Time for making prediction=", tm_test[1], "s \n")
