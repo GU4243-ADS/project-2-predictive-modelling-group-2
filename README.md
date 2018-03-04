@@ -19,19 +19,6 @@ Term: Spring 2018
 
 <Insert table with accuracy % and computational time>
 
-#### Feature Extractio Methods
-+ SIFT
-+ RGB
-+ HOG
-+ HSV
-
-#### Classification Models
-+ Gradient Booster Machine
-+ XGBoost
-+ Random Forest
-+ Logistic Regression
-+ Support Vector Machine
-
 ### Github Structure
 
 + The root code of our project is available at [Main.Rmd](doc/main.Rmd)
