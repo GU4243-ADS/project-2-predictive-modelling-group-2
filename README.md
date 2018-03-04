@@ -19,14 +19,6 @@ Term: Spring 2018
 <Insert table with accuracy % and computational time>
 
 
-#### Github Structure
-
-+ The root code of our project is available at [Main.Rmd](doc/main.Rmd)
-+ All the feature extraction methods are written under [feature.R](lib/feature.R)
-+ All the classification models are written under [train.R](lib/train.R)
-+ Code for CNN is available at 
-+ Data?
-
 ### Contirbution Statement
 
 + Jerome Kafrouni
