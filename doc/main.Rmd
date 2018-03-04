@@ -13,7 +13,7 @@ This file is meant to be a template for evaluating models used for image analysi
 
 ```{r, warning = FALSE}
 
-packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR")
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used,
 intersect(installed.packages()[,1],
@@ -86,22 +86,22 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 # model_labels <- paste("GBM with depth =", model_values)
 
 # Model values for xgboost (only one parameter):
-model_values <- list()
-k = 1
-for(i in list(1, 2, 3, 4, 5, 10)){
-  model_values[[k]] = list(depth = i)
-  k = k + 1
-}
-
-# Model values for randomForest (two parameters: ntree and mtry)
 # model_values <- list()
 # k = 1
-# for(i in seq(300, 500, 100)){
-#   for(j in seq(50, 100, 10)){
-#     model_values[[k]] = list(ntree = i, mtry = j)
-#     k = k + 1
-#   }
+# for(i in list(1, 2, 3, 4, 5, 10)){
+#   model_values[[k]] = list(depth = i)
+#   k = k + 1
 # }
+
+# Model values for randomForest (two parameters: ntree and mtry)
+model_values <- list()
+k = 1
+for(i in seq(300, 500, 100)){
+  for(j in seq(50, 100, 10)){
+    model_values[[k]] = list(ntree = i, mtry = j)
+    k = k + 1
+  }
+}
 
 # model_labels <- paste("XGboost with max_depth =", model_values)
 ```
@@ -120,7 +120,7 @@ label_train <- as.numeric(unlist(label_train) == "cat")
 When debugging, do not pass all the training data to the 'feature' function, otherwise it'll take a while. Instead pass a subset, via the argument "indexes" of the function. It should be a sequence of integers corresponding to the training samples you want to use.
 
 ```{r}
-# train_indexes <- seq(1,100) # set to "all" if you want to train on full dataset
+# train_indexes <- seq(1, 100) # set to "all" if you want to train on full dataset
 train_indexes <- "all"
 ```
 
@@ -132,7 +132,7 @@ tm_feature_train <- NA
 
 if(run.feature.train){
  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes,
-                                                      method="hog", export = FALSE))
+                                                      method="hsv", export = FALSE))
 }
 
 tm_feature_test <- NA
@@ -191,8 +191,8 @@ if (train_indexes != "all"){
   label_train <- label_train[train_indexes]
 }
 
-# model = "randomForest"
-model = "gbm"
+model = "randomForest"
+# model = "gbm"
 
 if(run.cv){
   err_cv <- array(dim = c(length(model_values), 2))

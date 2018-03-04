@@ -37,10 +37,11 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
   # Call features generation function:
   if(method == "row_mean"){
     features <- row_mean_feature(images)
-  } else if(method == "rgb_feature"){
+  } else if(method == "rgb"){
     features <- rgb_feature(images)
-  }
-  else if(method == "hog"){
+  } else if(method == "hsv"){
+    features <- hsv_feature(images)
+  } else if(method == "hog"){
     features <- hog_feature(images)
   }
   
@@ -54,9 +55,9 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
 
 ### Functions for each way to construct features:
 row_mean_feature <- function(images){
+  # Basic function used for debugging:
   # This method turns images into grayscale, then computes mean intensity per row
   # To do so, we resize all images to 300 rows (and proportional number of columns)
-  # print(dim(images))
   dat <- matrix(NA, length(images), 300)
   for(i in 1:length(images)){
     img <- images[[i]]
@@ -68,36 +69,67 @@ row_mean_feature <- function(images){
 }
 
 rgb_feature <- function(images){
-  ### load libraries
-  library("EBImage")
-  # library(grDevices)
-  ### Define the b=number of R, G and B
-  nR <- 12
-  nG <- 12
-  nB <- 12 
   # we split the intensity range [0,1] into 12 bins, for each channel
   # therefore we get 1728 bins that are a partition of all possible colors
   # (since each color is a combination of red intensity, blue intensity, green intensity)
+  
+  # Number of bins per channel:
+  nR <- 12
+  nG <- 12
+  nB <- 12 
+  
+  # Bins:
   rBin <- seq(0, 1, length.out=nR)
   gBin <- seq(0, 1, length.out=nG)
   bBin <- seq(0, 1, length.out=nB)
-  mat=array()
-  freq_rgb=array()
+  
   dat <- matrix(NA, length(images), nR*nG*nB)
   
   ########extract RGB features############
   for (i in 1:length(images)){
     img <- images[[i]]
     img_as_rgb <-array(c(img,img,img),dim = c(nrow(img),ncol(img),3))
+    # We compute a histogram of all possible RGB colors based on the bins defined above
     freq_rgb <- as.data.frame(table(factor(findInterval(img_as_rgb[,,1], rBin), levels=1:nR), 
                                     factor(findInterval(img_as_rgb[,,2], gBin), levels=1:nG),
                                     factor(findInterval(img_as_rgb[,,3], bBin), levels=1:nB)))
     dat[i,] <- as.numeric(freq_rgb$Freq)/(ncol(img)*nrow(img)) # normalization
-    
-    mat_rgb <-img_as_rgb
-    dim(mat_rgb) <- c(nrow(img_as_rgb)*ncol(img_as_rgb), 3)
   }
+  return(dat)
+}
+
+hsv_feature <- function(images){
+  # This function is similar to RGB feature except here we count frequencies based on HSV (Hue Saturation Value)
+  # Instead of RGB channels
   
+  # we split the intensity range [0,1] into 12 bins, for each channel
+  # therefore we get 1728 bins that are a partition of all possible colors
+  # (since each color is a combination of red intensity, blue intensity, green intensity)
+  library(grDevices)
+  # Number of bins per channel:
+  nH <- 12
+  nS <- 12
+  nV <- 12 
+  
+  # Bins:
+  hBin <- seq(0, 1, length.out=nH)
+  sBin <- seq(0, 1, length.out=nS)
+  vBin <- seq(0, 1, length.out=nV)
+  
+  dat <- matrix(NA, length(images), nH*nS*nV)
+  
+  ########extract RGB features############
+  for (i in 1:length(images)){
+    img <- images[[i]]
+    img_as_rgb <-array(c(img,img,img),dim = c(nrow(img),ncol(img),3))
+    dim(img_as_rgb) <- c(nrow(img_as_rgb)*ncol(img_as_rgb), 3) # resize for rgb2hsv
+    img_hsv <- rgb2hsv(t(img_as_rgb))
+    # We compute a histogram of all possible RGB colors based on the bins defined above
+    freq_hsv <- as.data.frame(table(factor(findInterval(img_hsv[1,], hBin), levels=1:nH), 
+                                    factor(findInterval(img_hsv[2,], sBin), levels=1:nS),
+                                    factor(findInterval(img_hsv[3,], vBin), levels=1:nV)))
+    dat[i,] <- as.numeric(freq_hsv$Freq)/(ncol(img)*nrow(img)) # normalization
+  }
   return(dat)
 }
 
