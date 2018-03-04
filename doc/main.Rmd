@@ -13,7 +13,7 @@ This file is meant to be a template for evaluating models used for image analysi
 
 ```{r, warning = FALSE}
 
-packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2")
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used,
 intersect(installed.packages()[,1],
@@ -129,7 +129,7 @@ tm_feature_train <- NA
 
 if(run.feature.train){
  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes,
-                                                       method="rgb_feature", export = FALSE))
+                                                      method="hog", export = FALSE))
 }
 
 tm_feature_test <- NA
