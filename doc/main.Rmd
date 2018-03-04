@@ -12,8 +12,8 @@ This file is meant to be a template for evaluating models used for image analysi
 
 
 ```{r, warning = FALSE}
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices", "e1071", "pillar")
 
-packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used,
 intersect(installed.packages()[,1],
@@ -27,6 +27,10 @@ if(!require("EBImage")){
   source("https://bioconductor.org/biocLite.R")
   biocLite("EBImage")
 }
+
+library("EBImage")
+library("gbm")
+library("ggplot2")
 ```
 
 ### Step 0: Specify directories.
@@ -35,7 +39,7 @@ We first set the working directory to the location of this .Rmd file  (it should
 
 
 ```{r wkdir, eval=FALSE}
-setwd("/Users/jookim/Documents/GitHub/project-2-predictive-modelling-group-2")
+setwd("../doc") 
 # Replace the above with your own path or manually set it in RStudio to where this rmd file is located. 
 ```
 
@@ -44,7 +48,9 @@ Now we provide directories for the raw images. Here we assume the training set a
 experiment_dir <- "../data/pets/" # This will be modified for different data sets.
 img_train_dir  <- paste(experiment_dir, "train/", sep="")
 img_test_dir   <- paste(experiment_dir, "test/", sep="")
+
 ```
+
 
 ### Step 1: Set up controls for model evaluation.
 
@@ -94,18 +100,28 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 # }
 
 # Model values for randomForest (two parameters: ntree and mtry)
-model_values <- list()
-k = 1
-for(i in seq(300, 500, 100)){
-  for(j in seq(50, 100, 10)){
-    model_values[[k]] = list(ntree = i, mtry = j)
-    k = k + 1
-  }
-}
+# model_values <- list()
+# k = 1
+# for(i in seq(100, 500, 100)){
+#   for(j in seq(50, 100, 10)){
+#     model_values[[k]] = list(ntree = i, mtry = j)
+
+# Model values for svm kernel
+# model_values <- list()
+# k = 1
+# for(i in c(5000,10000)){
+#   for(j in c(0,1,2)){
+#     model_values[[k]] = list(Cost = i, Gamma = j)
+#     k = k + 1
+#   }
+# }
 
 # model_labels <- paste("XGboost with max_depth =", model_values)
-```
 
+# Model values for svm linear
+model_values <- c(0.001, 0.01, 0.1, 1, 10, 100, 1000)
+model_labels <- paste("SVM with cost =", model_values)
+```
 
 ### Step 2: Import training images class labels.
 
@@ -120,7 +136,7 @@ label_train <- as.numeric(unlist(label_train) == "cat")
 When debugging, do not pass all the training data to the 'feature' function, otherwise it'll take a while. Instead pass a subset, via the argument "indexes" of the function. It should be a sequence of integers corresponding to the training samples you want to use.
 
 ```{r}
-# train_indexes <- seq(1, 100) # set to "all" if you want to train on full dataset
+# train_indexes <- seq(1,100) # set to "all" if you want to train on full dataset
 train_indexes <- "all"
 ```
 
@@ -141,8 +157,8 @@ if(run.feature.test){
                                                       export = FALSE))
 }
 
-#save(dat_train, file = "../output/feature_train.RData")
-#save(dat_test, file = "../output/feature_test.RData")
+save(dat_train, file = "../output/feature_train.RData")
+# save(dat_test, file = "../output/feature_test.RData")
 ```
 
 #### Dealing with imbalanced data:
@@ -150,6 +166,7 @@ if(run.feature.test){
 There are more dogs than cats in our training data which is not representative of the true distribution, therefore our model will be more biased toward dogs. As a basic approach, we just remove images of dogs from the dataset to make sure to have an equal number of pictures of dogs and cats. This is suboptimal because we are removing a lot of training samples.
 
 There are 652 images of cats and 1358 imgaes of dogs so we'll drop 706 images of dogs. Again, this is not optimal at all.
+
 ```{r}
 dogs_indexes <- which(label_train == 0)
 cats_indexes <- which(label_train == 1)
@@ -191,11 +208,12 @@ if (train_indexes != "all"){
   label_train <- label_train[train_indexes]
 }
 
-model = "randomForest"
-# model = "gbm"
+# model = "gbm" # choose which model to train
+model = "svm_lin"
 
 if(run.cv){
   err_cv <- array(dim = c(length(model_values), 2))
+  err_cv
   for(k in 1:length(model_values)){
     cat("k=", k, "\n")
     err_cv[k,] <- cv.function(dat_train, label_train, model_values[[k]], model, K)
@@ -213,13 +231,15 @@ If the model we use is only tuned with 1 parameter, we visualize the results by 
 If the model uses 2 parameters, we visualize the results with a heatmap.
 ```{r cv_vis}
 library(ggplot2)
+
 if(run.cv){
   # load("../output/err_cv.RData")
   # pdf("../fig/cv_results.pdf", width=7, height=5)
+
   if (length(model_values[[1]]) == 1){
     # plot, like in the starter code
-    plot(as.vector(unlist(model_values)), err_cv[,1], xlab = "Interaction Depth", ylab = "CV Error",
-         main = "Cross Validation Error", type = "n", ylim = c(0, 0.25))
+    plot(as.vector(unlist(model_values)), err_cv[,1], xlab = "Cost", ylab = "CV Error",
+         main = "Cross Validation Error", type = "n", ylim = c(0, 0.35))
     points(as.vector(unlist(model_values)), err_cv[,1], col = "blue", pch=16)
     lines(as.vector(unlist(model_values)), err_cv[,1], col = "blue")
     arrows(as.vector(unlist(model_values)), err_cv[,1] - err_cv[,2], as.vector(unlist(model_values)), err_cv[,1] + err_cv[,2],
@@ -236,7 +256,7 @@ if(run.cv){
     err = data.frame(par_1, par_2, mean_err_cv = err_cv[,1], std_err_cv = err_cv[,2])
 
     # plot those results in a 2d heatmap
-    ggplot(data = err[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
+    ggplot(data = err_2[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
       geom_tile() +
       geom_text(aes(par_1, par_2, label = round(mean_err_cv, digits=2)), color = "black", size = 4) +
       # scale_fill_gradient2(low = "green", high = "red", mid = "white", 
@@ -263,7 +283,9 @@ if(run.cv){
   model_best <- model_values[which.min(err_cv[, 1])]
 }
 
-par_best <- list(ntree = model_best$ntree, mtry = model_best$mtry)
+# par_best <- list(ntree = model_best$ntree, mtry = model_best$mtry)
+
+par_best <- list(model_best)
 ```
 
 * Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
