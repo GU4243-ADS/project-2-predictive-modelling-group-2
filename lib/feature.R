@@ -40,6 +40,9 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
   } else if(method == "rgb_feature"){
     features <- rgb_feature(images)
   }
+  else if(method == "hog"){
+    features <- hog_feature(images)
+  }
   
   ### output constructed features
   # if(export){
@@ -100,8 +103,30 @@ rgb_feature <- function(images){
 
 
 hog_feature <- function(images){
-  # TODO
-  return()
+  library("OpenImageR")
+  
+  n_files = length(images)
+  cropped <- list()
+  resized <- list()
+  # Step 1: crop all images to square and centered, then resize to 64*64
+  for (i in 1:n_files){
+      cropped[[i]] <- if(ncol(images[[i]]) > nrow(images[[i]])){
+          cropImage(images[[i]], nrow(images[[i]]) - 1, nrow(images[[i]]) - 1,
+          type = "equal_spaced")
+      } else {
+          cropImage(images[[i]], ncol(images[[i]]) - 1, ncol(images[[i]]) - 1,
+          type = "equal_spaced")
+      }
+      resized[[i]] <- resizeImage(cropped[[i]], 64, 64, method = "bilinear")
+  }
+  
+  # Step 2: extract hog feature for each image (cell and orientation numbers may be changed with tuning)
+  hog <- matrix(NA, nrow = n_files, ncol = 72)
+  for (i in 1:n_files){
+      hog[i, ] <- HOG(resized[[i]], cells = 3, orientations = 8)
+  }
+  
+  return(hog)
 }
 
 sift_feature <- function(images) {
