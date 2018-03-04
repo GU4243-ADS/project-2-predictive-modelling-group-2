@@ -19,7 +19,7 @@ Term: Spring 2018
 <Insert table with accuracy % and computational time>
 
 
-### Contirbution Statement
+##### Contribution Statement
 
 + Jerome Kafrouni
 + Ayano Kase
