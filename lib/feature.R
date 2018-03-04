@@ -153,9 +153,9 @@ hog_feature <- function(images){
   }
   
   # Step 2: extract hog feature for each image (cell and orientation numbers may be changed with tuning)
-  hog <- matrix(NA, nrow = n_files, ncol = 72)
+  hog <- matrix(NA, nrow = n_files, ncol = 200)
   for (i in 1:n_files){
-      hog[i, ] <- HOG(resized[[i]], cells = 3, orientations = 8)
+      hog[i, ] <- HOG(resized[[i]], cells = 5, orientations = 8)
   }
   
   return(hog)
