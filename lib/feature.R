@@ -100,8 +100,25 @@ rgb_feature <- function(images){
 
 
 hog_feature <- function(images){
-  # TODO
-  return()
+  library("OpenImageR")
+
+  for (i in 1:n_files){
+      cropped[[i]] <- if(ncol(images[[i]]) > nrow(images[[i]])){
+          cropImage(images[[i]], nrow(images[[i]]) - 1, nrow(images[[i]]) - 1,
+          type = "equal_spaced")
+      } else {
+          cropImage(images[[i]], ncol(images[[i]]) - 1, ncol(images[[i]]) - 1,
+          type = "equal_spaced")
+      }
+      resized[[i]] <- resizeImage(cropped[[i]], 64, 64, method = "bilinear")
+  }
+  
+  # extract hog feature (cell and orientation numbers may be changed with tuning)
+  hog <- matrix(NA, nrow = n_files, ncol = 72)
+  
+  for (i in 1:n_files){
+      hog[i, ] <- HOG(resized[[i]], cells = 3, orientations = 8)
+  }
 }
 
 sift_feature <- function(images) {
