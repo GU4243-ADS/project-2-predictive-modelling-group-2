@@ -117,8 +117,6 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 # }
 
 # model_labels <- paste("XGboost with max_depth =", model_values)
-```
-
 
 # Model values for svm linear
 model_values <- c(0.001, 0.01, 0.1, 1, 10, 100, 1000)
@@ -168,6 +166,7 @@ save(dat_train, file = "../output/feature_train.RData")
 There are more dogs than cats in our training data which is not representative of the true distribution, therefore our model will be more biased toward dogs. As a basic approach, we just remove images of dogs from the dataset to make sure to have an equal number of pictures of dogs and cats. This is suboptimal because we are removing a lot of training samples.
 
 There are 652 images of cats and 1358 imgaes of dogs so we'll drop 706 images of dogs. Again, this is not optimal at all.
+
 ```{r}
 dogs_indexes <- which(label_train == 0)
 cats_indexes <- which(label_train == 1)
