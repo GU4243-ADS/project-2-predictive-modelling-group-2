@@ -14,12 +14,12 @@ Term: Spring 2018
 + Team Number: Group 2
 + Team Members: Jerome Kafrouni, Ayano Kase, Joo Kim, Chunzi Wang, Chuyuan Wang
 + Project summary: In this project, we built an image classification model that distinguishes between pictures of dogs and cats. The process consists of two parts: feature extraction and model training. We adopted SIFT, RGB, HOG, and HSV feature extraction methods to train on classification models GBM, Random Forest, XGBOOST, Logistics Regression, and SVM. In addition, we used Convolutional Neural Networks for feature extraction and classification. After model evaluation and comparison, the optimal model is....
-
-### Performance Analysis
++ Performance Analysis
 
 <Insert table with accuracy % and computational time>
 
-### Github Structure
+
+#### Github Structure
 
 + The root code of our project is available at [Main.Rmd](doc/main.Rmd)
 + All the feature extraction methods are written under [feature.R](lib/feature.R)
