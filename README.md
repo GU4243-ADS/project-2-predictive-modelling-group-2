@@ -24,6 +24,9 @@ Term: Spring 2018
 
 + Jerome Kafrouni
 + Ayano Kase
+  - Built, trained, and tested SVM (linear and rbf) on all the features
+  - Created README.md
+  - Contributed to the presentation slide deck
 + Joo Kim
 + Chunzi Wang
 + Chuyuan Zhou
