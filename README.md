@@ -8,6 +8,8 @@
 
 ### [Project Description](doc/)
 
+![](figs/dogscats_descrp.png)
+
 Term: Spring 2018
 
 + Project title: Predictive Modelling - Dogs or Cats?
