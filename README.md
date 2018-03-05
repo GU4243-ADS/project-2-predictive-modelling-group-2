@@ -31,7 +31,7 @@ Term: Spring 2018
 + Chunzi Wang
 + Chuyuan Zhou
   - Built, trained, and tested GBM on all features 
-  - Contributed to README.md
+  - Contributed to README.md
   - Contributed to the presentation slide deck
 
 
