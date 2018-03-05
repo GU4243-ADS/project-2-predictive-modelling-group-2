@@ -18,8 +18,7 @@ Term: Spring 2018
 + Project summary: In this project, we built an image classification model that distinguishes between pictures of dogs and cats. The process consists of two parts: feature extraction and model training. We adopted SIFT, RGB, HOG, and HSV feature extraction methods to train on classification models GBM, Random Forest, XGBOOST, Logistics Regression, and SVM. In addition, we used Convolutional Neural Networks for feature extraction and classification. After model evaluation and comparison, the optimal model is....
 + Performance Analysis
 
-<Insert table with accuracy % and computational time>
-
+![](figs/performance_results.png)
 
 #### Contribution Statement
 
