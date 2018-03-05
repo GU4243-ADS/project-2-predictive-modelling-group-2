@@ -31,10 +31,15 @@ Term: Spring 2018
   - Created README.md
   - Contributed to the presentation slide deck
 + Joo Kim
+  - Built and tested HoG feature
+  - Built, trained, and tested randomForest on all features 
+  - Contributed to main README.md and updated sub-folder README.md's
+  - Developed framework for and contributed to the presentation slide deck
+  - Cleaned up GitHub repo 
 + Chunzi Wang
 + Chuyuan Zhou
   - Built, trained, and tested GBM on all features 
-  - Help Organized and contributed to README.md
+  - Help organize and contributed to README.md
   - Contributed to the presentation slide deck
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
