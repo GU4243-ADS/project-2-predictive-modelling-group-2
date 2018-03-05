@@ -1,6 +1,6 @@
 ---
 title: "Project 2 - Main script"
-author: "Jerome Kafrouni, Ayano Kase, Joo Kim, Chunzi Wang, Xiaoxuan Yang, Chuyuan Zhou"
+author: "Jerome Kafrouni, Ayano Kase, Joo Kim, Chunzi Wang, Chuyuan Zhou"
 date: "March 5, 2018"
 output:
   pdf_document: default
