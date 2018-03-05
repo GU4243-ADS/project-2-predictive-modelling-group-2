@@ -37,6 +37,9 @@ Term: Spring 2018
   - Developed framework for and contributed to the presentation slide deck
   - Cleaned up GitHub repo 
 + Chunzi Wang
+  - Built and tested SIFT feature
+  - Built, trained, and tested logisticRegression on all features
+  - Contributed README.md and presentation slide deck
 + Chuyuan Zhou
   - Built, trained, and tested GBM on all features 
   - Help organize and contributed to README.md
