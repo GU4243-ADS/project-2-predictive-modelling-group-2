@@ -14,8 +14,6 @@ train <- function(dat_train, label_train, model, par = NULL){
   
   if(model == "gbm"){
     return(train_gbm(dat_train, label_train, par))
-  } else if(model == "xgboost"){
-    return(train_xgboost(dat_train, label_train, par))
   } else if (model == "randomForest"){
   return(train_randomForest(dat_train, label_train, par))
   } else if(model == "svm_rbf"){
@@ -46,31 +44,6 @@ train_randomForest <- function(dat_train, label_train, par){
  
  return(list(fit = fit_randomForest))
 }
-
-
-train_xgboost <- function(dat_train, label_train, par){
-  library("xgboost")
-  
-  ### Train with xgboost
-  if(is.null(par)){
-    max_depth <- 2
-  } else {
-    max_depth <- par$max_depth
-  }
-  
-  fit_boosted_tree <- xgboost(data = dat_train, 
-                      label = label_train,
-                      max.depth = max_depth, 
-                      eta = 0, 
-                      nthread = 2, 
-                      nrounds = 100, 
-                      objective = "binary:logistic",
-                      gamma = 0.1,
-                      verbose = 0)
-  
-  return(list(fit = fit_boosted_tree))
-}
-
 
 train_gbm <- function(dat_train, label_train, par){
   ### load libraries
