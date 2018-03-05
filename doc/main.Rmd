@@ -125,7 +125,7 @@ tm_feature_train <- NA
 
 if(run.feature.train){
  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes,
-                                                      method = "hsv", export = FALSE))
+                                                      method = "sift", export = FALSE))
 }
 
 tm_feature_test <- NA
@@ -249,6 +249,9 @@ if(run.cv){
   
   #dev.off()
 }
+
+ggsave("heatmap_SIFT.png", 
+       path = "/Users/jookim/Documents/GitHub/project-2-predictive-modelling-group-2/figs", scale = .6)
 ```
 
 * Choose the "best" parameter value
@@ -258,6 +261,7 @@ model_best <- model_values[1]
 if(run.cv){
   model_best <- model_values[which.min(err_cv[, 1])]
 }
+model_best
 ```
 
 * Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
@@ -265,7 +269,8 @@ if(run.cv){
 
 ```{r final_train}
 # tm_train <- NA
-tm_train <- system.time(fit_train <- train(dat_train, label_train, mode, model_best[[1]]))
+tm_train <- system.time(fit_train <- train(dat_train, label_train, model, model_best[[1]]))
+tm_train
 # save(fit_train, file = "../output/fit_train.RData")
 ```
 

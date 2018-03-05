@@ -57,7 +57,7 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
   # if(export){
   # save(features, file = paste0("../output/feature_", data_name, "_", set_name, ".RData"))
   # }
-  return(features)
+  return(data.frame(features))
 }
 
 

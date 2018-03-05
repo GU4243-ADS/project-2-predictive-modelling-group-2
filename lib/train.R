@@ -76,6 +76,8 @@ train_gbm <- function(dat_train, label_train, par){
   ### load libraries
   library("gbm")
   
+  # dat_train is a dataframe but gbm needs a matrix:
+  dat_train <- as.matrix(setNames(dat_train, NULL))
   ### Train with gradient boosting model
   if(is.null(par)){
     depth <- 3
