@@ -22,6 +22,8 @@ train <- function(dat_train, label_train, model, par = NULL){
     return(train_svm_rbf(dat_train, label_train, par))
   } else if(model == "svm_lin"){
     return(train_svm_lin(dat_train, label_train, par))
+  } else if(model == "logisticRegression"){
+    return(train_logisticRegression(dat_train, label_train, par))
   }
 }
 
@@ -130,4 +132,9 @@ train_svm_lin = function(dat_train, label_train, par){
                      method = "svmLinear", scale = FALSE,
                      Cost = Cost)
   return(list(fit = fit_svm_lin))
+}
+
+train_logisticRegression <- function(dat_train, label_train, par){
+  fit_lr <- glm(label_train~., data = dat_train, family = "binomial")
+  return(list(fit = fit_lr))
 }
