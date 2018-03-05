@@ -26,6 +26,9 @@ Term: Spring 2018
 #### Contribution Statement
 
 + Jerome Kafrouni
+  - Built and tested RGB and HSV in R and CNN in Python 
+  - Served as guide to train and test all models 
+  - Contributed to the presentation slide deck 
 + Ayano Kase
   - Built, trained, and tested SVM (linear and rbf) on all the features
   - Created README.md
