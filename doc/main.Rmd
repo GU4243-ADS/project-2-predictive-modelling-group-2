@@ -12,7 +12,7 @@ This file is meant to be a template for evaluating models used for image analysi
 
 
 ```{r, warning = FALSE}
-packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices", "e1071", "pillar")
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices", "e1071", "pillar", "dplyr", "tidyr")
 
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used,
@@ -148,7 +148,7 @@ tm_feature_train <- NA
 
 if(run.feature.train){
  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes,
-                                                      method="hsv", export = FALSE))
+                                                      method="sift", export = FALSE))
 }
 
 tm_feature_test <- NA
@@ -256,7 +256,7 @@ if(run.cv){
     err = data.frame(par_1, par_2, mean_err_cv = err_cv[,1], std_err_cv = err_cv[,2])
 
     # plot those results in a 2d heatmap
-    ggplot(data = err_2[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
+    ggplot(data = err[,c(1,2,3)], aes(x=par_1, y=par_2, fill=mean_err_cv)) + 
       geom_tile() +
       geom_text(aes(par_1, par_2, label = round(mean_err_cv, digits=2)), color = "black", size = 4) +
       # scale_fill_gradient2(low = "green", high = "red", mid = "white", 
@@ -282,10 +282,6 @@ model_best <- model_values[1]
 if(run.cv){
   model_best <- model_values[which.min(err_cv[, 1])]
 }
-
-# par_best <- list(ntree = model_best$ntree, mtry = model_best$mtry)
-
-par_best <- list(model_best)
 ```
 
 * Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
@@ -293,7 +289,7 @@ par_best <- list(model_best)
 
 ```{r final_train}
 # tm_train <- NA
-# tm_train <- system.time(fit_train <- train(dat_train, label_train, par_best))
+tm_train <- system.time(fit_train <- train(dat_train, label_train, mode, model_best[[1]]))
 # save(fit_train, file = "../output/fit_train.RData")
 ```
 

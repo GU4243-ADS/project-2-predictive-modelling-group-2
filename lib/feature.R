@@ -29,10 +29,16 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
     indexes <- seq(1, n_files)
   }
   
-  for(i in indexes){
-    img <- readImage(paste0(img_dir,  "pet", i, ".jpg"))
-    images[[length(images) + 1]] <- img
+  if (method != "sift"){
+    for(i in indexes){
+      img <- readImage(paste0(img_dir,  "pet", i, ".jpg"))
+      images[[length(images) + 1]] <- img
+    }
   }
+  else{
+    
+  }
+  
   
   # Call features generation function:
   if(method == "row_mean"){
@@ -43,6 +49,8 @@ feature <- function(img_dir, indexes="all", method="row_mean", export=T){
     features <- hsv_feature(images)
   } else if(method == "hog"){
     features <- hog_feature(images)
+  } else if(method == "sift"){
+    features <- sift_feature(images)
   }
   
   ### output constructed features
@@ -165,6 +173,33 @@ sift_feature <- function(images) {
   # The sift features have already been computed
   # Download them from https://drive.google.com/a/columbia.edu/uc?id=128fqgPZa6I-ZlB_xqhFmO6KmdJyLN1nB&export=download.
   # And put them in your "output" folder
-  # TODO
-  return()
+  
+  # in a sift.Rmd, we compute clusters on sift features to be able to perform "Bag Of Features"
+  # Here we load those clusters and then for each image assign all its keypoints to the clusters
+  # To compute a bag of word representation of the image's sift values.
+  
+  # note that in sift.Rmd we also merged all the sift features files into one matrix that we saved in pets_sift.RData
+  # this is too big to fit on the repo.
+  library(dplyr)
+  library(tidyr)
+  
+  clusters <- get(load("../output/clusters.RData"))
+  pets_sift <- get(load("../output/pets_sift.RData"))
+  
+  # Step 5: data manipulation to put every image in a row and clusters in columns. (Bag of features)
+  pets_sift_df <- as.data.frame(pets_sift)
+  pets_sift_df$cluster <- clusters$cluster
+  colnames(pets_sift_df)[129] <- "img"
+  
+  pets_sift_cluster <- pets_sift_df %>%
+    group_by(img) %>%
+    count(cluster) %>%
+    spread(cluster,n)
+  
+  pets_sift_cluster <- pets_sift_cluster[-1,]
+  
+  pets_sift_cluster[is.na(pets_sift_cluster)] <- 0
+  colnames(pets_sift_cluster) <-c("img",paste("cluster",1:100,sep="_"))
+  
+  return(pets_sift_cluster)
 }
