@@ -87,16 +87,48 @@ list(list(my_param_a=1, my_param_b=0.1), list(my_param_a=1, my_param_b=0.2),
 ```   
 
 ```{r model_setup}
+# To set up parameters, uncomment the chunk for specific feature to be trained in
+
+# Model values for GBM:
+# model_values <- list()
+# k = 1
+# for(i in list(1, 2, 3, 4, 5, 10)){
+#  model_values[[k]] = list(depth = i)
+#  k = k + 1
+#}
+
+# Model values for xgboost (only one parameter):
+# model_values <- list()
+# k = 1
+# for(i in list(1, 2, 3, 4, 5, 10)){
+#   model_values[[k]] = list(depth = i)
+#   k = k + 1
+# }
+
 # Model values for randomForest (two parameters: ntree and mtry)
 model_values <- list()
 k = 1
 for(i in seq(100, 500, 100)){
   for(j in seq(50, 100, 10)){
     model_values[[k]] = list(ntree = i, mtry = j)
-    k = k + 1
-  }
-}
 
+# Model values for svm kernel
+# model_values <- list()
+# k = 1
+# for(i in c(0,0.01,0.1,1,5,10,100)){
+#   for(j in c(0,0.000001,0.00001,0.0001,0.001,1)){
+#     model_values[[k]] = list(Cost = i, Gamma = j)
+#     k = k + 1
+#   }
+# }
+
+# Model values for svm linear
+# model_values <- c(0.001, 0.01, 0.1, 1, 10, 100, 1000)
+# model_labels <- paste("SVM with cost =", model_values)
+
+# logistic reg doesn't need parameters, just pass empty list:
+# model_values <- list()
+# model_values[[1]] = list()
 ```
 
 ### Step 2: Import training images class labels.
@@ -125,7 +157,7 @@ tm_feature_train <- NA
 
 if(run.feature.train){
  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, indexes=train_indexes,
-                                                      method = "sift", export = FALSE))
+                                                      method = "hsv", export = FALSE))
 }
 
 tm_feature_test <- NA
