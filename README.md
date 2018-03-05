@@ -18,7 +18,7 @@ Term: Spring 2018
 + Project summary: In this project, we built an image classification model that distinguishes between pictures of dogs and cats. The process consists of two parts: feature extraction and model training. We adopted SIFT, RGB, HOG, and HSV feature extraction methods to train on classification models GBM, Random Forest, XGBOOST, Logistics Regression, and SVM. In addition, we used Convolutional Neural Networks for feature extraction and classification. After model evaluation and comparison, the optimal model is....
 + Performance Analysis
 
-![](figs/performance_results.png)
+![](figs/performance_result.png)
 
 #### Contribution Statement
 
@@ -26,7 +26,7 @@ Term: Spring 2018
 + Ayano Kase
 + Joo Kim
 + Chunzi Wang
-+ Chuyuan Wang
++ Chuyuan Zhou
 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
