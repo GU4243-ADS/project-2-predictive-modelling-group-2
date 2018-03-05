@@ -30,6 +30,9 @@ Term: Spring 2018
 + Joo Kim
 + Chunzi Wang
 + Chuyuan Zhou
+  - Built, trained, and tested GBM on all features 
+  - Contributed to README.md
+  - Contributed to the presentation slide deck
 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
