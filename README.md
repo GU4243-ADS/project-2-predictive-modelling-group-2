@@ -20,6 +20,10 @@ Term: Spring 2018
 
 ![](figs/performance_result.png)
 
+# As for GBM, the we could see that the best result comes with SIFT feature extraction, and the best parameter is depth = 10. It comes with an accuracy of 72%, which is higher than with other feature extraction methods. The results for other feature extraction methods are around 63%, witch we acheived improvements using other models.
+
+
+
 #### Contribution Statement
 
 + Jerome Kafrouni
@@ -31,7 +35,7 @@ Term: Spring 2018
 + Chunzi Wang
 + Chuyuan Zhou
   - Built, trained, and tested GBM on all features 
-  - Contributed to README.md
+  - Help Organized and contributed to README.md
   - Contributed to the presentation slide deck
 
 
