@@ -12,7 +12,7 @@ output:
 ### Packages used: 
 
 ```{r, warning = FALSE}
-packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices", "e1071", "pillar", "dplyr", "tidyr")
+packages.used=c("gbm", "knn", "xgboost", "randomForest", "ggplot2", "OpenImageR", "grDevices", "e1071", "pillar", "dplyr", "tidyr", "clue")
 
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used,
@@ -56,9 +56,9 @@ In this step, we have a set of controls for the model evaluation.  The code in t
 ```{r exp_setup}
 run.cv            <- TRUE # run cross-validation on the training set
 K                 <- 5    # number of CV folds
-run.feature.train <- TRUE # process features for training set
+run.feature.train <- FALSE # process features for training set
 run.test          <- FALSE # run evaluation on an independent test set
-run.feature.test  <- FALSE # process features for test set
+run.feature.test  <- TRUE # process features for test set
 ```
 
 Using cross-validation or independent test set evaluation, we compare the performance of different classifiers. To set up parameters, uncomment the chunk for specific feature to be trained.
@@ -130,6 +130,8 @@ train_indexes <- "all"
 
 The below code imports sift from feature.R, but you may "method = " to import other features. 
 
+Note: the feature functions are the same for both training and testing, except for sift that needs to load a specific file and therefore has been split into two metods "sift" and "sift_test". We found this to make the code cleaner even if there is some redundancy.
+
 ```{r feature}
 source("../lib/feature.R")
 
@@ -143,7 +145,7 @@ if(run.feature.train){
 tm_feature_test <- NA
 if(run.feature.test){
   tm_feature_test <- system.time(dat_test <- feature(img_train_dir, indexes = "all",
-                                                      export = FALSE))
+                                                      method= "sift_test", export = FALSE))
 }
 
 save(dat_train, file = "../output/feature_train.RData")

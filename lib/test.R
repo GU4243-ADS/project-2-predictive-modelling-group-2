@@ -17,6 +17,12 @@ test <- function(fit_train, dat_test){
   
   ### load libraries
   
+  # This is our baseline, which is sift features + gbm
+  # It takes a trained gbm and outputs predictions
+  
+  # Our advanced model is in Python (using tensorflow), check out the .ipynb file
+  # The notebook is straightforward to run and output predictions
+  
   library("gbm")
   
   pred <- predict(fit_train$fit, newdata = dat_test, 
