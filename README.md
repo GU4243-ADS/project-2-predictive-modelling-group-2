@@ -33,6 +33,7 @@ Term: Spring 2018
   - Built, trained, and tested SVM (linear and rbf) on all the features
   - Created README.md
   - Contributed to the presentation slide deck
+  - Prepared and gave presentation
 + Joo Kim
   - Built and tested HoG feature
   - Built, trained, and tested randomForest on all features 
